@@ -84,6 +84,85 @@
       "prefix": "man-about",
       "suffix": "line-out",
       "text": "MAN! About {amount} {unit}. This round's over. Mamba out."
+    },
+    {
+      "id": "next-play",
+      "labelZh": "11. 别找借口，下一回合",
+      "labelEn": "11. No excuses, next play",
+      "prefix": "man-about",
+      "suffix": "line-next-play",
+      "text": "MAN! About {amount} {unit}. No excuses. Next play."
+    },
+    {
+      "id": "far-stop",
+      "labelZh": "12. 走到这了，别停",
+      "labelEn": "12. We did not come this far to stop",
+      "prefix": "about",
+      "suffix": "line-far-stop",
+      "text": "About {amount} {unit}. We didn't come this far to stop."
+    },
+    {
+      "id": "showed",
+      "labelZh": "13. 账单来了，我们也到了",
+      "labelEn": "13. The bill showed up",
+      "prefix": "bill-showed",
+      "text": "MAN! The bill showed up. So did we. About {amount} {unit}."
+    },
+    {
+      "id": "worth",
+      "labelZh": "14. 现在，让这笔钱花得值",
+      "labelEn": "14. Make it worth it",
+      "prefix": "about",
+      "suffix": "line-worth",
+      "text": "About {amount} {unit}. Good. Now make it worth it."
+    },
+    {
+      "id": "eyes",
+      "labelZh": "15. 抬头，下一球",
+      "labelEn": "15. Eyes up, next shot",
+      "prefix": "man-about",
+      "suffix": "line-eyes",
+      "text": "MAN! About {amount} {unit}. Eyes up. Next shot."
+    },
+    {
+      "id": "rep",
+      "labelZh": "16. 再练一组",
+      "labelEn": "16. One more rep",
+      "prefix": "about",
+      "suffix": "line-rep",
+      "text": "About {amount} {unit}. One more rep."
+    },
+    {
+      "id": "receipt",
+      "labelZh": "17. 留着小票，丢掉怀疑",
+      "labelEn": "17. Keep the receipt, lose the doubt",
+      "prefix": "about",
+      "suffix": "line-receipt",
+      "text": "About {amount} {unit}. Keep the receipt. Lose the doubt."
+    },
+    {
+      "id": "shortcuts",
+      "labelZh": "18. 这里没有捷径",
+      "labelEn": "18. No shortcuts from here",
+      "prefix": "man-about",
+      "suffix": "line-shortcuts",
+      "text": "MAN! About {amount} {unit}. No shortcuts from here."
+    },
+    {
+      "id": "mission",
+      "labelZh": "19. 再来一轮，目标不变",
+      "labelEn": "19. Same mission",
+      "prefix": "another-round",
+      "suffix": "line-mission",
+      "text": "Another round, about {amount} {unit}. Same mission."
+    },
+    {
+      "id": "clock",
+      "labelZh": "20. 计时还没停",
+      "labelEn": "20. Clock is still running",
+      "prefix": "about",
+      "suffix": "line-clock",
+      "text": "About {amount} {unit}. Clock's still running."
     }
   ],
   "clips": {
@@ -528,6 +607,86 @@
       "duration": 0.57,
       "asrVerified": false,
       "humanListeningVerified": false
+    },
+    "line-next-play": {
+      "file": "clips/line-next-play.wav",
+      "text": "No excuses. Next play.",
+      "sha256": "5b5b4dd6038df50550180e361120543577c5f28292bcbd2aa07bbecbbe5ed8aa",
+      "duration": 2.49,
+      "asrVerified": false,
+      "humanListeningVerified": false
+    },
+    "line-far-stop": {
+      "file": "clips/line-far-stop.wav",
+      "text": "We didn't come this far to stop.",
+      "sha256": "851dc2bb51d50e7e6d10b15e723e526598551b46c5cd2cd2b67d66bc1fe7e02e",
+      "duration": 1.81,
+      "asrVerified": false,
+      "humanListeningVerified": false
+    },
+    "bill-showed": {
+      "file": "clips/bill-showed.wav",
+      "text": "MAN! The bill showed up. So did we. About.",
+      "sha256": "edd5de27c60036754745c286152031f849b5f6a3c33dd21f194aa80a24d8e542",
+      "duration": 4.42,
+      "asrVerified": false,
+      "humanListeningVerified": false
+    },
+    "line-worth": {
+      "file": "clips/line-worth.wav",
+      "text": "Good. Now make it worth it.",
+      "sha256": "3df85a71afbccc2374676a299a0477a5cd4e51e9fb0cf9d57dbc751963786bc7",
+      "duration": 2.62,
+      "asrVerified": false,
+      "humanListeningVerified": false
+    },
+    "line-eyes": {
+      "file": "clips/line-eyes.wav",
+      "text": "Eyes up. Next shot.",
+      "sha256": "e0cd2a2bfe0065d7cbd1431fefdfee08d79f36cabc261f99a77b77a7d826c4b4",
+      "duration": 2.54,
+      "asrVerified": false,
+      "humanListeningVerified": false
+    },
+    "line-rep": {
+      "file": "clips/line-rep.wav",
+      "text": "One more rep.",
+      "sha256": "8bdf97f59758b0f59063750581c0a414734ac54ca361bd9c594ba10ae8ff48dd",
+      "duration": 1.422,
+      "asrVerified": false,
+      "humanListeningVerified": false
+    },
+    "line-receipt": {
+      "file": "clips/line-receipt.wav",
+      "text": "Keep the receipt. Lose the doubt.",
+      "sha256": "d8de83aca81b8d1ba6c8169c0c8f15ed7d6fdffb4e63e124995556829247c077",
+      "duration": 2.57,
+      "asrVerified": false,
+      "humanListeningVerified": false
+    },
+    "line-shortcuts": {
+      "file": "clips/line-shortcuts.wav",
+      "text": "No shortcuts from here.",
+      "sha256": "c022ddac1585a0a337361a655714b08431b26dab0033277e98086b2d23d60e6f",
+      "duration": 1.97,
+      "asrVerified": false,
+      "humanListeningVerified": false
+    },
+    "line-mission": {
+      "file": "clips/line-mission.wav",
+      "text": "Same mission.",
+      "sha256": "6710b40bde60f508f432f8b6db6ce0931cca1b2c39444f8de1c8a9c4244b4563",
+      "duration": 0.93,
+      "asrVerified": false,
+      "humanListeningVerified": false
+    },
+    "line-clock": {
+      "file": "clips/line-clock.wav",
+      "text": "Clock's still running.",
+      "sha256": "5cbb1280cf97d38f948f849feee857170271a69eda750018df28ab3cc332e7ba",
+      "duration": 1.622,
+      "asrVerified": false,
+      "humanListeningVerified": false
     }
   },
   "amounts": {
@@ -547,7 +706,7 @@
     "newCompositesHumanReviewed": false,
     "runtimeGeneration": false
   },
-  "notes": "10 offline phrase templates, pre-generated fixed voice; local number + bare currency + optional ending. Three decimal half-up presentation; no runtime synthesis/key/provider.",
+  "notes": "20 offline phrase templates, pre-generated fixed voice; local number + bare currency + optional ending. Three decimal half-up presentation; no runtime synthesis/key/provider.",
   "units": {
     "CNY": "unit-yuan",
     "USD": "unit-dollars",

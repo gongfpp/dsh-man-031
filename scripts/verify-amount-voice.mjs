@@ -5,8 +5,10 @@ import vm from 'node:vm'
 const root = new URL('../assets/voices/', import.meta.url)
 const manifest = JSON.parse(readFileSync(new URL('manifest.json', root), 'utf8'))
 assert.equal(manifest.id,'kobe-doubao-offline-v1');assert.equal(manifest.provider,'doubao');assert.equal(manifest.runtime,undefined)
-assert.equal(manifest.exactOnly,false);assert.equal(Object.keys(manifest.clips).length,55);assert.equal(manifest.phrases.length,10)
-assert.equal(new Set(manifest.phrases.map(p=>p.id)).size,10)
+assert.equal(manifest.exactOnly,false);assert.equal(Object.keys(manifest.clips).length,65);assert.equal(manifest.phrases.length,20)
+assert.equal(new Set(manifest.phrases.map(p=>p.id)).size,20)
+const { phrases: expectedPhrases } = await import('./generate-doubao-phrases-v3.mjs')
+assert.deepEqual(manifest.phrases, expectedPhrases)
 for(const row of [...Object.values(manifest.clips),...Object.values(manifest.amounts)]){
   assert.match(row.file,/^(clips|amounts)\/[A-Za-z0-9][A-Za-z0-9-]*(?:\.\d+)?\.wav$/)
   const b=readFileSync(new URL(row.file,root));assert.equal(createHash('sha256').update(b).digest('hex'),row.sha256)
@@ -29,4 +31,4 @@ assert.deepEqual(Array.from(api.numberTokens(9.9995)),['10'])
 for(const path of ['../index.js','../client.js']){
  const text=readFileSync(new URL(path,import.meta.url),'utf8');for(const forbidden of ['openspeech.bytedance.com','voice/resolve','voice/configure','man031_voice_prepare','豆包连接'])assert.equal(text.includes(forbidden),false)
 }
-console.log('offline audio: passed (55 hashed clips, 10 templates x 2 currencies; decimal three-place half-up; approved whole WAV preserved; no runtime provider/key/tool)')
+console.log('offline audio: passed (65 hashed clips, 20 templates x 2 currencies; decimal three-place half-up; approved whole WAV preserved; no runtime provider/key/tool)')

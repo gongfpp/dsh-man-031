@@ -53,6 +53,16 @@ line-out: This round's over. Mamba out.
 unit-yuan: 元。
 unit-dollars: Dollars.
 unit-dollar: Dollar.
+line-next-play: No excuses. Next play.
+line-far-stop: We didn't come this far to stop.
+bill-showed: MAN! The bill showed up. So did we. About.
+line-worth: Good. Now make it worth it.
+line-eyes: Eyes up. Next shot.
+line-rep: One more rep.
+line-receipt: Keep the receipt. Lose the doubt.
+line-shortcuts: No shortcuts from here.
+line-mission: Same mission.
+line-clock: Clock's still running.
 
 round-next: MAN! That's about {amount} {unit}. One round down. What's next?
 back-work: About {amount} {unit}. All right. Back to work.
@@ -64,3 +74,13 @@ pass: MAN! I said pass the ball. Not the bill. About {amount} {unit}.
 breath: About {amount} {unit}. Take a breath. Then take the next shot.
 going: What can I say? About {amount} {unit}. We keep going.
 out: MAN! About {amount} {unit}. This round's over. Mamba out.
+next-play: MAN! About {amount} {unit}. No excuses. Next play.
+far-stop: About {amount} {unit}. We didn't come this far to stop.
+showed: MAN! The bill showed up. So did we. About {amount} {unit}.
+worth: About {amount} {unit}. Good. Now make it worth it.
+eyes: MAN! About {amount} {unit}. Eyes up. Next shot.
+rep: About {amount} {unit}. One more rep.
+receipt: About {amount} {unit}. Keep the receipt. Lose the doubt.
+shortcuts: MAN! About {amount} {unit}. No shortcuts from here.
+mission: Another round, about {amount} {unit}. Same mission.
+clock: About {amount} {unit}. Clock's still running.

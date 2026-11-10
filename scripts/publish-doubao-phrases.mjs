@@ -1,7 +1,9 @@
 import { readFileSync, writeFileSync, mkdirSync, unlinkSync, copyFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { createHash } from 'node:crypto'
-import { directory, plan, phrases } from './generate-doubao-phrases.mjs'
+import * as v2 from './generate-doubao-phrases.mjs'
+import * as v3 from './generate-doubao-phrases-v3.mjs'
+const { directory, plan, phrases } = process.argv.includes('--v3') ? v3 : v2
 import { measureVoice, media } from './voice-loudness.mjs'
 const root=new URL('../',import.meta.url),bankRoot=new URL('assets/voices/',root),manifestPath=new URL('manifest.json',bankRoot),bank=JSON.parse(readFileSync(manifestPath,'utf8'))
 const hash=b=>createHash('sha256').update(b).digest('hex'), report=[]
@@ -21,7 +23,7 @@ for(const item of plan){
   report.push({id:item.id,...row,sourceSha256:ledger.sha256,rangeSeconds:[first/24000,end/24000],gainDb,after:measureVoice(file)})
 }
 bank.phrases=phrases;bank.units={CNY:'unit-yuan',USD:'unit-dollars',USD_SINGULAR:'unit-dollar'}
-bank.notes='10 offline phrase templates, pre-generated fixed voice; local number + bare currency + optional ending. Three decimal half-up presentation; no runtime synthesis/key/provider.'
+bank.notes=`${phrases.length} offline phrase templates, pre-generated fixed voice; local number + bare currency + optional ending. Three decimal half-up presentation; no runtime synthesis/key/provider.`
 bank.verification.newCompositesHumanReviewed=false
 writeFileSync(manifestPath,JSON.stringify(bank,null,2)+'\n')
 writeFileSync(join(directory,'render.json'),JSON.stringify({developmentCalls:plan.length,cloudAsrCalls:0,processing:'Outer silence only with 50ms padding; single constant gain; no pitch/rate change; no fabricated per-clip human review.',clips:report},null,2)+'\n')

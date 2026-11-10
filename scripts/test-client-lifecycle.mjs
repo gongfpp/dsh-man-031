@@ -123,19 +123,37 @@ async function fixture(options = {}) {
 }
 
 // Each published option selects that exact local phrase, not a random or cached other sentence.
-for (let i = 0; i < 10; i++) {
+for (let i = 0; i < 20; i++) {
   const pack = JSON.parse(readFileSync(new URL('../assets/voices/manifest.json', import.meta.url), 'utf8'))
   let rolls = 0
   const f = await fixture({ manifest: pack, deterministicRandom: () => { rolls++; return 0 } })
   await f.openSettings(); await f.previewAmount('0.3105')
   const phrase = pack.phrases[i]
   const select = f.root.root.findByProps({ className: 'man031-preview-phrase' })
-  assert.equal(select.findAllByType('option').length, 11)
+  assert.equal(select.findAllByType('option').length, 21)
   await act(async () => select.props.onChange({ target: { value: phrase.id } }))
   const before = f.requests.length
   await act(async () => f.root.root.findByProps({ className: 'man031 man031-settings' }).findByType('button').props.onClick()); await flush()
   assert.deepEqual(f.requests.slice(before).filter(path => path.endsWith('.wav')).map(path => path.split('/').at(-1)), [phrase.prefix,'0','dot','3','1','1',pack.units.CNY,...(phrase.suffix ? [phrase.suffix] : [])].map(key => pack.clips[key].file.split('/').at(-1)))
   assert.match(f.text(), /0.311元/); assert.equal(rolls, 0)
+  await f.unmount()
+}
+// The expanded random pool reaches the last new phrase; Retry stays fixed, next turn rolls again.
+{
+  const pack = JSON.parse(readFileSync(new URL('../assets/voices/manifest.json', import.meta.url), 'utf8'))
+  let rolls = 0
+  const f = await fixture({ manifest: pack, amount: .000749, networkFailures: 1, deterministicRandom: () => ++rolls === 1 ? .999999 : .5 })
+  await f.event(2)
+  assert.match(f.text(), /音频网络失败/); assert.equal(rolls, 1)
+  await f.click('man031-retry')
+  assert.equal(rolls, 1, 'Retry cannot replace the selected twentieth phrase')
+  assert.ok(f.requests.some(path => path.endsWith('/line-clock.wav')))
+  assert.match(f.text(), /0.001元/)
+  const before = f.requests.length
+  await f.event(4)
+  assert.equal(rolls, 2)
+  assert.ok(f.requests.slice(before).some(path => path.endsWith('/line-next-play.wav')), 'new round can select the eleventh phrase')
+  assert.ok(f.requests.every(path => path.startsWith('/api/man-031/')), 'all twenty phrases remain local')
   await f.unmount()
 }
 // Custom previews round to three decimal places; selecting a phrase never changes real billing.
