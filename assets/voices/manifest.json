@@ -1,0 +1,556 @@
+{
+  "schemaVersion": 1,
+  "id": "kobe-doubao-offline-v1",
+  "provider": "doubao",
+  "language": "en",
+  "status": "verified",
+  "exactOnly": false,
+  "openers": [],
+  "phrases": [
+    {
+      "id": "round-next",
+      "labelZh": "1. 一轮结束，下一轮？",
+      "labelEn": "1. One round down",
+      "prefix": "prefix",
+      "suffix": "line-next",
+      "text": "MAN! That's about {amount} {unit}. One round down. What's next?"
+    },
+    {
+      "id": "back-work",
+      "labelZh": "2. 继续干活",
+      "labelEn": "2. Back to work",
+      "prefix": "about",
+      "suffix": "line-work",
+      "text": "About {amount} {unit}. All right. Back to work."
+    },
+    {
+      "id": "make-count",
+      "labelZh": "3. 让这笔钱花得值",
+      "labelEn": "3. Make that count",
+      "prefix": "man-about",
+      "suffix": "line-count",
+      "text": "MAN! About {amount} {unit}. Let's make that count."
+    },
+    {
+      "id": "jobs",
+      "labelZh": "4. 活儿还没结束",
+      "labelEn": "4. Job's not finished",
+      "prefix": "came-about",
+      "suffix": "line-jobs",
+      "text": "That came to about {amount} {unit}. Job's not finished."
+    },
+    {
+      "id": "wanted",
+      "labelZh": "5. 你说再来一轮？",
+      "labelEn": "5. Another round?",
+      "prefix": "wanted-round",
+      "text": "MAN! You wanted another round. That's about {amount} {unit}."
+    },
+    {
+      "id": "locked",
+      "labelZh": "6. 保持专注",
+      "labelEn": "6. Stay locked in",
+      "prefix": "another-round",
+      "suffix": "line-locked",
+      "text": "Another round. About {amount} {unit}. Stay locked in."
+    },
+    {
+      "id": "pass",
+      "labelZh": "7. 传球，不是传账单",
+      "labelEn": "7. Pass the ball, not the bill",
+      "prefix": "pass-bill",
+      "text": "MAN! I said pass the ball. Not the bill. About {amount} {unit}."
+    },
+    {
+      "id": "breath",
+      "labelZh": "8. 喘口气，再投下一球",
+      "labelEn": "8. Take the next shot",
+      "prefix": "about",
+      "suffix": "line-breath",
+      "text": "About {amount} {unit}. Take a breath. Then take the next shot."
+    },
+    {
+      "id": "going",
+      "labelZh": "9. 还能说什么？继续吧",
+      "labelEn": "9. We keep going",
+      "prefix": "what-say",
+      "suffix": "line-going",
+      "text": "What can I say? About {amount} {unit}. We keep going."
+    },
+    {
+      "id": "out",
+      "labelZh": "10. 这轮结束，曼巴退场",
+      "labelEn": "10. Mamba out",
+      "prefix": "man-about",
+      "suffix": "line-out",
+      "text": "MAN! About {amount} {unit}. This round's over. Mamba out."
+    }
+  ],
+  "clips": {
+    "0": {
+      "file": "clips/0.wav",
+      "text": "Zero.",
+      "sha256": "95c4e9fe5842c9a00a7e03a3973b1648efb2110f30897d026e2cae99137d744f",
+      "duration": 0.89,
+      "asrVerified": true,
+      "humanListeningVerified": false
+    },
+    "1": {
+      "file": "clips/1.wav",
+      "text": "One.",
+      "sha256": "2ae73c531f7e22f9d7b733c0587708a65c14b3012b9dd2011462997b8a679ce2",
+      "duration": 0.66,
+      "asrVerified": true,
+      "humanListeningVerified": false
+    },
+    "2": {
+      "file": "clips/2.wav",
+      "text": "Two.",
+      "sha256": "be928b91e24d4ba775108083febde4c57dbcc0603fd549995b9bbecf7d351aa5",
+      "duration": 0.66,
+      "asrVerified": true,
+      "humanListeningVerified": false
+    },
+    "3": {
+      "file": "clips/3.wav",
+      "text": "Three.",
+      "sha256": "d7018fed6660b70c9920a6295512d56cffe6972893c31393ade59f8c478045e9",
+      "duration": 0.83,
+      "asrVerified": true,
+      "humanListeningVerified": false
+    },
+    "4": {
+      "file": "clips/4.wav",
+      "text": "Four.",
+      "sha256": "9640abdf433e08c04dc89ebafe54ab01fa323c4e8e9f554541877a41d183546f",
+      "duration": 0.82,
+      "asrVerified": true,
+      "humanListeningVerified": false
+    },
+    "5": {
+      "file": "clips/5.wav",
+      "text": "Five.",
+      "sha256": "895fefb8d8c86e246dba17a584e464725749be2ab8758f08f683528fd1d91f71",
+      "duration": 1.16,
+      "asrVerified": true,
+      "humanListeningVerified": false
+    },
+    "6": {
+      "file": "clips/6.wav",
+      "text": "Six.",
+      "sha256": "ad87b9a4fa4ea2b759e6c667ec0ef22af43e868e0f1009bf5028555e97708647",
+      "duration": 0.95,
+      "asrVerified": true,
+      "humanListeningVerified": false
+    },
+    "7": {
+      "file": "clips/7.wav",
+      "text": "Seven.",
+      "sha256": "646e8aba1765da288ff7cbf83620f177a9f0c2128cfb8ea7fd330cc51ed3f5d7",
+      "duration": 1.3,
+      "asrVerified": true,
+      "humanListeningVerified": false
+    },
+    "8": {
+      "file": "clips/8.wav",
+      "text": "Eight.",
+      "sha256": "3136a53f7420313c50565203cc8255259595f3a9b0573778e84b50eec5f8dbce",
+      "duration": 0.54,
+      "asrVerified": true,
+      "humanListeningVerified": false
+    },
+    "9": {
+      "file": "clips/9.wav",
+      "text": "Nine.",
+      "sha256": "c0c2d79a8f18a487359f95c5a7d1ee818fb99598316e558063ead91a4e7452a9",
+      "duration": 0.854,
+      "asrVerified": true,
+      "humanListeningVerified": false
+    },
+    "10": {
+      "file": "clips/10.wav",
+      "text": "Ten.",
+      "sha256": "6c53709d01cf301230efbfa796d6bb5bb97759e3b49ba61e1252c581ec4defb6",
+      "duration": 0.68,
+      "asrVerified": true,
+      "humanListeningVerified": false
+    },
+    "11": {
+      "file": "clips/11.wav",
+      "text": "Eleven.",
+      "sha256": "71a19bea1b36d60e9e5a1df23276bcb16641f117f1e0ad2ad54e9a3b46b38ae0",
+      "duration": 0.78,
+      "asrVerified": true,
+      "humanListeningVerified": false
+    },
+    "12": {
+      "file": "clips/12.wav",
+      "text": "Twelve.",
+      "sha256": "4d1b40b30005edae9a0c59cbd9a1b851d3e5b87dc2cab035cbde4d97826c67ed",
+      "duration": 0.83,
+      "asrVerified": true,
+      "humanListeningVerified": false
+    },
+    "13": {
+      "file": "clips/13.wav",
+      "text": "Thirteen.",
+      "sha256": "33c431272f5ca7d92f66de1da0fde1e668967a1da117a7950c775b9f8e322a97",
+      "duration": 0.79,
+      "asrVerified": true,
+      "humanListeningVerified": false
+    },
+    "14": {
+      "file": "clips/14.wav",
+      "text": "Fourteen.",
+      "sha256": "1d5975a06a34bb93c2daa2a4d8adb3440f39a4008a5b763e65d02c8336e00ec4",
+      "duration": 1.34,
+      "asrVerified": true,
+      "humanListeningVerified": false
+    },
+    "15": {
+      "file": "clips/15.wav",
+      "text": "Fifteen.",
+      "sha256": "4bf26015ea9c50bddf92fa2d861ec31e7550846ed9c6879086cb3258d17fd506",
+      "duration": 0.98,
+      "asrVerified": true,
+      "humanListeningVerified": false
+    },
+    "16": {
+      "file": "clips/16.wav",
+      "text": "Sixteen.",
+      "sha256": "ab83391153dab60399290d2937cb2b0257e91a74498a450a1912e47b1b007e4b",
+      "duration": 1.34,
+      "asrVerified": true,
+      "humanListeningVerified": false
+    },
+    "17": {
+      "file": "clips/17.wav",
+      "text": "Seventeen.",
+      "sha256": "1ac773072ddce8b32489759446295cdba5760841a049b2a8bb69f82b3cdf37b9",
+      "duration": 1.46,
+      "asrVerified": true,
+      "humanListeningVerified": false
+    },
+    "18": {
+      "file": "clips/18.wav",
+      "text": "Eighteen.",
+      "sha256": "918e7cca2f957067ff190abe442669fc87da56d1cea767651d068c8210c3c5ba",
+      "duration": 0.69,
+      "asrVerified": true,
+      "humanListeningVerified": false
+    },
+    "19": {
+      "file": "clips/19.wav",
+      "text": "Nineteen.",
+      "sha256": "c37b800ebffca23a6037d6fa7edf167f337d468bab59097a8f7b2620f725fa44",
+      "duration": 0.95,
+      "asrVerified": true,
+      "humanListeningVerified": false
+    },
+    "20": {
+      "file": "clips/20.wav",
+      "text": "Twenty.",
+      "sha256": "423ca38f62b1e775b003be1084f0bb319e65fa1e46c5a1f6ea118dc80cca7aad",
+      "duration": 1.21,
+      "asrVerified": true,
+      "humanListeningVerified": false
+    },
+    "30": {
+      "file": "clips/30.wav",
+      "text": "Thirty.",
+      "sha256": "ab28180d41dd483b369f0517a658822842db0f17135b8205c26a2840f34135fa",
+      "duration": 0.73,
+      "asrVerified": true,
+      "humanListeningVerified": false
+    },
+    "40": {
+      "file": "clips/40.wav",
+      "text": "Forty.",
+      "sha256": "72bf5371c907bc7d9b3a7e72508ce8dbfe23c9fd2da6b0a09c31a1d3a1c02fa2",
+      "duration": 1.214,
+      "asrVerified": true,
+      "humanListeningVerified": false
+    },
+    "50": {
+      "file": "clips/50.wav",
+      "text": "Fifty.",
+      "sha256": "69a1511200631235977dd5b894228b47642730f7382d7d01e728eaaf38501996",
+      "duration": 1.46,
+      "asrVerified": true,
+      "humanListeningVerified": false
+    },
+    "60": {
+      "file": "clips/60.wav",
+      "text": "Sixty.",
+      "sha256": "ef4d05f5ca7930ffbf494d09c7789471bef01e3cc4160e7749c810dd30c37aa4",
+      "duration": 1.01,
+      "asrVerified": true,
+      "humanListeningVerified": false
+    },
+    "70": {
+      "file": "clips/70.wav",
+      "text": "Seventy.",
+      "sha256": "3a8ddfe1b32905ce76a06b940afbb00e78adbf9ee8f7af44a1428a278d6ef6cc",
+      "duration": 1.2,
+      "asrVerified": true,
+      "humanListeningVerified": false
+    },
+    "80": {
+      "file": "clips/80.wav",
+      "text": "Eighty.",
+      "sha256": "a69088d74a8787553351fc726fcfec2ed0da545c3a6b15e6da2a53f50b9462e3",
+      "duration": 1.124,
+      "asrVerified": true,
+      "humanListeningVerified": false
+    },
+    "90": {
+      "file": "clips/90.wav",
+      "text": "Ninety.",
+      "sha256": "60a7ac5acdfb921a22f50cc46c6551eaf97b9524857578937cdc4220d9fdd525",
+      "duration": 1.13,
+      "asrVerified": true,
+      "humanListeningVerified": false
+    },
+    "prefix": {
+      "file": "clips/prefix.wav",
+      "text": "MAN! That's about.",
+      "sha256": "9a7a7e5fed21b636cf2c3a15f4aa7bf512f1e8246fcba94f3313d69e9aca1098",
+      "duration": 1.58,
+      "asrVerified": false,
+      "humanListeningVerified": false,
+      "humanPreference": "A selected over B in CNY 0.31004 and USD 1.27 composite auditions; not blanket approval of all amounts",
+      "source": "doubao-man-refresh/prefix-clear"
+    },
+    "dot": {
+      "file": "clips/dot.wav",
+      "text": "Point.",
+      "sha256": "63a7b2923a8fb5b7720951456a7311ef4c1c891059252bb406ef693a787e064b",
+      "duration": 0.638,
+      "asrVerified": false,
+      "humanListeningVerified": false
+    },
+    "yuan": {
+      "file": "clips/yuan.wav",
+      "text": "元。Job's not finished.",
+      "sha256": "84cf625b73e092465e713f67b3ad2c76842e33e04b972c495ab149b2052bf449",
+      "duration": 2.94,
+      "asrVerified": false,
+      "humanListeningVerified": false
+    },
+    "hundred": {
+      "file": "clips/hundred.wav",
+      "text": "Hundred.",
+      "sha256": "067e5a2b12b7d6c50ba49b5b35daf91b297334321fd8f7bd0999d812c61f625d",
+      "duration": 0.66,
+      "asrVerified": false,
+      "humanListeningVerified": false
+    },
+    "thousand": {
+      "file": "clips/thousand.wav",
+      "text": "Thousand.",
+      "sha256": "a25050bbd6288140555595113e9c415b2058599cc7c360afa47f7d23708bddbc",
+      "duration": 0.7,
+      "asrVerified": false,
+      "humanListeningVerified": false
+    },
+    "million": {
+      "file": "clips/million.wav",
+      "text": "Million.",
+      "sha256": "6da7cbc13db49ab0d39f66c09a08a3ab98a3c60410229726d26bcbca9bd490d2",
+      "duration": 0.93,
+      "asrVerified": false,
+      "humanListeningVerified": false
+    },
+    "billion": {
+      "file": "clips/billion.wav",
+      "text": "Billion.",
+      "sha256": "63882e26522b4dd2871203651b4463bee9edc275cadcd32885d9adaff56ced2c",
+      "duration": 0.63,
+      "asrVerified": false,
+      "humanListeningVerified": false
+    },
+    "dollars": {
+      "file": "clips/dollars.wav",
+      "text": "Dollars. Job's not finished.",
+      "sha256": "86e8b3c9be709f9d620c631689dc4aeac5cc18d6c4ed59d7116d01f3aff9f974",
+      "duration": 2.532,
+      "asrVerified": false,
+      "humanListeningVerified": false
+    },
+    "singular-dollar": {
+      "file": "clips/singular-dollar.wav",
+      "text": "Dollar. Job's not finished.",
+      "sha256": "1d4cd2ad5d16f86213a4cb1e6fd69de4b32ddb285a372358e6fbfd8ff6115a00",
+      "duration": 2.49,
+      "asrVerified": false,
+      "humanListeningVerified": false
+    },
+    "about": {
+      "file": "clips/about.wav",
+      "text": "About.",
+      "sha256": "16dc71f314c574ef6020ef208806896c1e202ea63aff61e08dbbb8750872b61b",
+      "duration": 0.72,
+      "asrVerified": false,
+      "humanListeningVerified": false
+    },
+    "man-about": {
+      "file": "clips/man-about.wav",
+      "text": "MAN! About.",
+      "sha256": "b85bf3ba72a8907d0d106c4bf31fd745db0e9f0b7a0436351d057ac8ddb3f774",
+      "duration": 2.17,
+      "asrVerified": false,
+      "humanListeningVerified": false
+    },
+    "came-about": {
+      "file": "clips/came-about.wav",
+      "text": "That came to about.",
+      "sha256": "39b36ced5feef838bf1e8744edd1a89e92f9f9c44209fd4f202d92ceb5cb718a",
+      "duration": 1.72,
+      "asrVerified": false,
+      "humanListeningVerified": false
+    },
+    "wanted-round": {
+      "file": "clips/wanted-round.wav",
+      "text": "MAN! You wanted another round. That's about.",
+      "sha256": "979d0121f82ac4b651e664147eb61df7243161bcb945e7fd76fba4d05c445e5a",
+      "duration": 3.39,
+      "asrVerified": false,
+      "humanListeningVerified": false
+    },
+    "another-round": {
+      "file": "clips/another-round.wav",
+      "text": "Another round. About.",
+      "sha256": "55192ac9aca63f21ebf432361bc32438d5329eb593aec6f768640215e1ee99b3",
+      "duration": 2.37,
+      "asrVerified": false,
+      "humanListeningVerified": false
+    },
+    "pass-bill": {
+      "file": "clips/pass-bill.wav",
+      "text": "MAN! I said pass the ball. Not the bill. About.",
+      "sha256": "f2b7d5460d324ba76201a9e843ff16b4f4da16940f2822c9024311d14a92683b",
+      "duration": 5.45,
+      "asrVerified": false,
+      "humanListeningVerified": false
+    },
+    "what-say": {
+      "file": "clips/what-say.wav",
+      "text": "What can I say? About.",
+      "sha256": "ba5567d60476145663fc9bfb1f3a64f4e9b9402493a978caca63289ba2e6a695",
+      "duration": 1.67,
+      "asrVerified": false,
+      "humanListeningVerified": false
+    },
+    "line-next": {
+      "file": "clips/line-next.wav",
+      "text": "One round down. What's next?",
+      "sha256": "964277e97a8495b2562479696da3615a6d89d4d02d1df734133db1e98d6cc59d",
+      "duration": 2.82,
+      "asrVerified": false,
+      "humanListeningVerified": false
+    },
+    "line-work": {
+      "file": "clips/line-work.wav",
+      "text": "All right. Back to work.",
+      "sha256": "ce711be88d53d5a3677133cf2958c99385ac443ff13d609eca35285dbeb4f3be",
+      "duration": 2.09,
+      "asrVerified": false,
+      "humanListeningVerified": false
+    },
+    "line-count": {
+      "file": "clips/line-count.wav",
+      "text": "Let's make that count.",
+      "sha256": "2c00bdf0d176df1ec61aacd78dd79d21cdeab97b6af71d59603e4621e16a36d5",
+      "duration": 1.28,
+      "asrVerified": false,
+      "humanListeningVerified": false
+    },
+    "line-jobs": {
+      "file": "clips/line-jobs.wav",
+      "text": "Job's not finished.",
+      "sha256": "1a2de74fd52a124a9d256bd893d8d68ba60b6b81291fd2b6f62355a9288046df",
+      "duration": 1.59,
+      "asrVerified": false,
+      "humanListeningVerified": false
+    },
+    "line-locked": {
+      "file": "clips/line-locked.wav",
+      "text": "Stay locked in.",
+      "sha256": "612e4e767eb74f59f5050ca7215a7aa5171055d4dcdbec5fb5f20a8eb00a3178",
+      "duration": 1.36,
+      "asrVerified": false,
+      "humanListeningVerified": false
+    },
+    "line-breath": {
+      "file": "clips/line-breath.wav",
+      "text": "Take a breath. Then take the next shot.",
+      "sha256": "5e7eed91cfddb5af81b496266e6ea30ca29df61e8ba372f6f7e417e501f1033f",
+      "duration": 3.17,
+      "asrVerified": false,
+      "humanListeningVerified": false
+    },
+    "line-going": {
+      "file": "clips/line-going.wav",
+      "text": "We keep going.",
+      "sha256": "95f061475ca98a738f4369a0b45078da84009ae1ab7be4b2111782cfa3fdb8e0",
+      "duration": 0.86,
+      "asrVerified": false,
+      "humanListeningVerified": false
+    },
+    "line-out": {
+      "file": "clips/line-out.wav",
+      "text": "This round's over. Mamba out.",
+      "sha256": "bae8475c8184361b4b3fc61f5c8c95f26263962607aaaea6325d3f7f2e45cc7d",
+      "duration": 2.87,
+      "asrVerified": false,
+      "humanListeningVerified": false
+    },
+    "unit-yuan": {
+      "file": "clips/unit-yuan.wav",
+      "text": "元。",
+      "sha256": "adf77cd0b5e562eec18df4c9d9cb0139feccc040914b36d9a4d279d03d1dc534",
+      "duration": 0.72,
+      "asrVerified": false,
+      "humanListeningVerified": false
+    },
+    "unit-dollars": {
+      "file": "clips/unit-dollars.wav",
+      "text": "Dollars.",
+      "sha256": "0a8effc7eec8cddf7091ee83c09cf7c34c0522a40a26d32811f990e4ae7305da",
+      "duration": 1.01,
+      "asrVerified": false,
+      "humanListeningVerified": false
+    },
+    "unit-dollar": {
+      "file": "clips/unit-dollar.wav",
+      "text": "Dollar.",
+      "sha256": "318da2e790c576a864f9cc57e0e25845e26b659fcd3bd8062c9f6f896c318166",
+      "duration": 0.57,
+      "asrVerified": false,
+      "humanListeningVerified": false
+    }
+  },
+  "amounts": {
+    "CNY:0.31": {
+      "file": "amounts/CNY-0.31.wav",
+      "phraseId": "doubao-jobs",
+      "fullUtterance": true,
+      "sha256": "616c0da0c19a87c82f8531cc8ee2aea1da87c2eb24c9506b72dfed44d9f4c1a2",
+      "humanListeningVerified": true,
+      "currencyHumanVerified": true,
+      "asrVerified": false
+    }
+  },
+  "verification": {
+    "numericContentChecked": true,
+    "source": "pre-generated with one fixed Doubao voice; local cached ASR; constant per-clip level adjustment",
+    "newCompositesHumanReviewed": false,
+    "runtimeGeneration": false
+  },
+  "notes": "10 offline phrase templates, pre-generated fixed voice; local number + bare currency + optional ending. Three decimal half-up presentation; no runtime synthesis/key/provider.",
+  "units": {
+    "CNY": "unit-yuan",
+    "USD": "unit-dollars",
+    "USD_SINGULAR": "unit-dollar"
+  }
+}

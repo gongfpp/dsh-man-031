@@ -1,0 +1,66 @@
+0: Zero.
+1: One.
+2: Two.
+3: Three.
+4: Four.
+5: Five.
+6: Six.
+7: Seven.
+8: Eight.
+9: Nine.
+10: Ten.
+11: Eleven.
+12: Twelve.
+13: Thirteen.
+14: Fourteen.
+15: Fifteen.
+16: Sixteen.
+17: Seventeen.
+18: Eighteen.
+19: Nineteen.
+20: Twenty.
+30: Thirty.
+40: Forty.
+50: Fifty.
+60: Sixty.
+70: Seventy.
+80: Eighty.
+90: Ninety.
+prefix: MAN! That's about.
+dot: Point.
+yuan: 元。Job's not finished.
+hundred: Hundred.
+thousand: Thousand.
+million: Million.
+billion: Billion.
+dollars: Dollars. Job's not finished.
+singular-dollar: Dollar. Job's not finished.
+about: About.
+man-about: MAN! About.
+came-about: That came to about.
+wanted-round: MAN! You wanted another round. That's about.
+another-round: Another round. About.
+pass-bill: MAN! I said pass the ball. Not the bill. About.
+what-say: What can I say? About.
+line-next: One round down. What's next?
+line-work: All right. Back to work.
+line-count: Let's make that count.
+line-jobs: Job's not finished.
+line-locked: Stay locked in.
+line-breath: Take a breath. Then take the next shot.
+line-going: We keep going.
+line-out: This round's over. Mamba out.
+unit-yuan: 元。
+unit-dollars: Dollars.
+unit-dollar: Dollar.
+
+round-next: MAN! That's about {amount} {unit}. One round down. What's next?
+back-work: About {amount} {unit}. All right. Back to work.
+make-count: MAN! About {amount} {unit}. Let's make that count.
+jobs: That came to about {amount} {unit}. Job's not finished.
+wanted: MAN! You wanted another round. That's about {amount} {unit}.
+locked: Another round. About {amount} {unit}. Stay locked in.
+pass: MAN! I said pass the ball. Not the bill. About {amount} {unit}.
+breath: About {amount} {unit}. Take a breath. Then take the next shot.
+going: What can I say? About {amount} {unit}. We keep going.
+out: MAN! About {amount} {unit}. This round's over. Mamba out.

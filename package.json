@@ -1,0 +1,60 @@
+{
+  "name": "dsh-man-031",
+  "version": "0.6.0",
+  "private": true,
+  "icon": "icon.png",
+  "description": "A transparent Kobe iced-tea reminder with exact turn costs and bundled offline Doubao phrase/number audio.",
+  "type": "module",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=22",
+    "dsh": ">=0.2.2-0 <0.3.0-0"
+  },
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.png",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "cordis.patch.yml",
+    "icon.png",
+    "locale/*.json",
+    "assets/kobe.png",
+    "assets/voices/manifest.json",
+    "assets/voices/readable-text.txt",
+    "assets/voices/clips/*.wav",
+    "assets/voices/amounts/CNY-0.31.wav",
+    "docs/preview.png",
+    "docs/settings.png",
+    "docs/SOURCES.md",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "dependencies": {
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "react": "19.2.0",
+    "react-test-renderer": "19.2.0"
+  },
+  "scripts": {
+    "test": "node scripts/smoke-host.mjs && node scripts/smoke-client.mjs && node scripts/verify-amount-voice.mjs"
+  },
+  "dsh": {
+    "manifestVersion": 1,
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web"
+    },
+    "compatibility": {
+      "dsh": ">=0.2.2-0 <0.3.0-0"
+    }
+  }
+}
