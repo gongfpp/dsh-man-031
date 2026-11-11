@@ -19,6 +19,8 @@
 
 安装时使用 npm 包名 **`dsh-man-031`**。发行版本见 [npm](https://www.npmjs.com/package/dsh-man-031) 和 [GitHub Releases](https://github.com/gongfpp/dsh-man-031/releases)。市场目录的审核与同步可能晚于发行包上线。
 
+要自动报出费用，还需安装并启用 [dsh-cost-meter](https://www.npmjs.com/package/dsh-cost-meter)；没有费用记录时，仍可手动试听。
+
 ## 按你的习惯设置
 
 ![插件详情页设置：启用、语音、音量、币种、探头位置及试听金额](docs/settings.png)
