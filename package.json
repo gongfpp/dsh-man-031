@@ -1,11 +1,26 @@
 {
   "name": "dsh-man-031",
   "version": "0.7.0",
-  "private": true,
   "icon": "icon.png",
   "description": "A transparent Kobe iced-tea reminder with exact turn costs and bundled offline Doubao phrase/number audio.",
   "type": "module",
   "license": "UNLICENSED",
+  "author": "gongfpp",
+  "repository": { "type": "git", "url": "git+https://github.com/gongfpp/dsh-man-031.git" },
+  "homepage": "https://github.com/gongfpp/dsh-man-031#readme",
+  "bugs": { "url": "https://github.com/gongfpp/dsh-man-031/issues" },
+  "keywords": ["dsh", "dsh-plugin", "deepseek-harness", "voice", "usage", "offline", "kobe"],
+  "publishConfig": { "access": "public", "registry": "https://registry.npmjs.org/" },
+  "dshhub": {
+    "schemaVersion": 1,
+    "displayName": "Man！花了这么多钱！",
+    "summary": "每轮结束弹出科比冰红茶人物，二十句离线台词随机播报本轮估算费用，支持人民币/美元和三位小数四舍五入。",
+    "categories": ["usage", "voice"],
+    "surfaces": ["host", "web"],
+    "capabilities": {},
+    "permissions": {},
+    "compatibility": { "dsh": ">=0.2.2-0 <0.3.0-0", "node": ">=22" }
+  },
   "engines": {
     "node": ">=22",
     "dsh": ">=0.2.2-0 <0.3.0-0"
