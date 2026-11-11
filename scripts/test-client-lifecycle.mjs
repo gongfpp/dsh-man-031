@@ -90,9 +90,44 @@ async function fixture(options = {}) {
     async openSettings(open = true, view = 'page') { settingsOpen = open; settingsView = view; await act(async () => root.update(tree())); await flush() },
     async click(className) { await act(async () => root.root.findByProps({ className }).props.onClick()); await flush() },
     async previewAmount(value) { await act(async () => root.root.findByProps({ className: 'man031-preview-amount' }).props.onChange({ target: { value } })); await flush() },
-    async setting(type, value) { await act(async () => root.root.findAllByType(type)[type === 'select' ? 0 : 0].props.onChange({ target: { value } })); await flush() },
+    async setting(type, value) { await act(async () => (type === 'select' ? root.root.findByProps({ className: 'man031-currency' }) : root.root.findAllByType(type)[0]).props.onChange({ target: { value } })); await flush() },
     async unmount() { await act(async () => root.unmount()); await flush(); assert.equal(face.listeners.size, 0); assert.equal(list.listeners.size, 0); assert.equal(current.listeners.size, 0); assert.equal(timers.size, 0); for (const set of [...events.values(), ...documentEvents.values()]) assert.equal(set.size, 0) }
   }
+}
+
+// Token mode uses native integer usage and only the token voice pool, including preview.
+for (const count of [0, 1, 1234]) {
+  const pack = JSON.parse(readFileSync(new URL('../assets/voices/manifest.json', import.meta.url), 'utf8'))
+  const storage = new Map([['man-031.preferences.v2', JSON.stringify({reportMode:'tokens',currency:'USD'})]])
+  const f = await fixture({storage,manifest:pack,cost:{source:'native-usage',status:'unknown',amount:null,usage:{available:true,total:count}}})
+  await f.event(2)
+  assert.match(f.requests.find(p=>p.startsWith('/api/man-031/cost?')), /mode=tokens/)
+  assert.ok(f.text().includes(`本轮用了 ${count.toLocaleString('en-US')} 个 Token`));assert.doesNotMatch(f.text(), /本轮约花了|美元|元/)
+  const unit=pack.clips[count===1?'unit-token':'unit-tokens'].file
+  assert.ok(f.requests.some(p=>p.endsWith(unit)));assert.ok(!f.requests.some(p=>/unit-(yuan|dollar)/.test(p)))
+  await f.openSettings();assert.equal(f.root.root.findAllByProps({className:'man031-currency'}).length,0)
+  assert.equal(f.root.root.findByProps({className:'man031-preview-phrase'}).findAllByType('option').length,5)
+  await f.previewAmount('1.5');assert.equal(f.root.root.findByProps({className:'man031 man031-settings'}).findByType('button').props.disabled,true)
+  for (const phrase of pack.tokenPhrases) {
+    await f.previewAmount('2345')
+    await act(async()=>f.root.root.findByProps({className:'man031-preview-phrase'}).props.onChange({target:{value:phrase.id}}))
+    const before=f.requests.length
+    await act(async()=>f.root.root.findByProps({className:'man031 man031-settings'}).findByType('button').props.onClick());await flush()
+    const paths=f.requests.slice(before).filter(p=>p.endsWith('.wav'))
+    assert.ok(paths[0].endsWith(pack.clips[phrase.prefix].file));assert.ok(paths.some(p=>p.endsWith(pack.clips['unit-tokens'].file)))
+    assert.match(f.text(),/本轮用了 2,345 个 Token/)
+  }
+  await f.openSettings(false);await f.openSettings();assert.equal(JSON.parse(storage.get('man-031.preferences.v2')).reportMode,'tokens')
+  await f.unmount()
+}
+{
+  const f=await fixture({cost:{source:'public-pricing',status:'estimated',amount:.1234}})
+  await f.event(2);assert.match(f.text(),/按公开价格估算/);assert.match(f.text(),/非实际扣款/);await f.unmount()
+}
+{
+  const storage=new Map([['man-031.preferences.v2',JSON.stringify({reportMode:'tokens'})]])
+  const f=await fixture({storage,cost:{source:'native-usage',status:'unknown',amount:null,usage:{available:false,total:0}}})
+  await f.event(2);assert.match(f.text(),/Token 用量暂不可用/);assert.equal(f.playing,0);await f.unmount()
 }
 
 // Native settings tab shares existing preferences and the live overlay's preview controller.
@@ -106,8 +141,8 @@ async function fixture(options = {}) {
   await f.openSettings(true, 'summary')
   assert.equal(f.root.root.findAllByType('select').length, 0, 'bundle summaries must not render configuration forms')
   await f.openSettings()
-  assert.equal(f.root.root.findAllByType('select')[0].props.value, 'USD', 'existing browser preferences survive migration')
-  assert.equal(f.root.root.findAllByType('select')[1].props.value, 'left')
+  assert.equal(f.root.root.findByProps({ className: 'man031-currency' }).props.value, 'USD', 'existing browser preferences survive migration')
+  assert.equal(f.root.root.findAllByType('select')[2].props.value, 'left')
   await f.setting('select', 'CNY')
   await act(async () => f.root.root.findByProps({ type: 'range' }).props.onChange({ target: { value: '.4' } }))
   await act(async () => f.root.root.findByProps({ className: 'man031 man031-settings' }).findByType('button').props.onClick()); await flush()
@@ -117,7 +152,7 @@ async function fixture(options = {}) {
   await f.openSettings(false)
   assert.equal(f.popup().length, 1, 'closing the settings tab does not unmount the playback controller')
   await f.openSettings()
-  assert.equal(f.root.root.findAllByType('select')[0].props.value, 'CNY')
+  assert.equal(f.root.root.findByProps({ className: 'man031-currency' }).props.value, 'CNY')
   assert.equal(JSON.parse(storage.get(key)).volume, .4)
   await f.unmount()
 }
@@ -271,13 +306,13 @@ for (const stage of ['manifestDeferred', 'audioDeferred']) {
 for (const costFailure of ['network', 'http', 'json']) {
   const f = await fixture({ costFailures: 1, costFailure })
   await f.event(2)
-  assert.match(f.text(), /费用查询失败 · 重试/); assert.doesNotMatch(f.text(), /费用暂不可用|本轮约花了/)
+  assert.match(f.text(), /本轮用量查询失败 · 重试/); assert.doesNotMatch(f.text(), /费用暂不可用|本轮约花了/)
   assert.equal(f.popup().length, 0); assert.equal(f.playing, 0); assert.equal(f.storage.has('man-031.seen.v2'), false)
   assert.equal(f.requests.length, 1, 'a failed cost request must not fetch manifest/audio')
   await flush(); assert.equal(f.requests.length, 1, 'no retry polling')
   await f.click('man031-cost-retry')
   assert.equal(f.requests.filter(url => url.startsWith('/api/man-031/cost?')).length, 2)
-  assert.match(f.text(), /0.000元/); assert.doesNotMatch(f.text(), /费用查询失败/)
+  assert.match(f.text(), /0.000元/); assert.doesNotMatch(f.text(), /本轮用量查询失败/)
   assert.ok(f.playing > 0); assert.ok(JSON.parse(f.storage.get('man-031.seen.v2'))['a:2'])
   await f.unmount()
 }
@@ -285,13 +320,13 @@ for (const costFailure of ['network', 'http', 'json']) {
   const f = await fixture({ costFailures: 1, cost: { status: 'unknown', amount: null } })
   await f.event(2); assert.equal(f.storage.has('man-031.seen.v2'), false)
   await f.click('man031-cost-retry')
-  assert.match(f.text(), /费用暂不可用/); assert.doesNotMatch(f.text(), /费用查询失败/)
+  assert.match(f.text(), /费用暂不可用/); assert.doesNotMatch(f.text(), /本轮用量查询失败/)
   assert.equal(f.playing, 0); assert.ok(JSON.parse(f.storage.get('man-031.seen.v2'))['a:2'], 'only confirmed unknown can consume the presentation')
   await f.unmount()
 }
 {
   const options = { cost: { status: 'not-a-cost' }, locale: 'en' }, f = await fixture(options)
-  await f.event(2); assert.match(f.text(), /Cost request failed · Retry/)
+  await f.event(2); assert.match(f.text(), /Turn usage request failed · Retry/)
   assert.equal(f.storage.has('man-031.seen.v2'), false)
   options.cost = undefined
   await f.click('man031-cost-retry'); assert.ok(f.playing > 0)
@@ -300,7 +335,7 @@ for (const costFailure of ['network', 'http', 'json']) {
 {
   const f = await fixture({ costFailures: 1 })
   await f.event(2)
-  f.document.focused = false; await f.emit('blur'); assert.doesNotMatch(f.text(), /费用查询失败/)
+  f.document.focused = false; await f.emit('blur'); assert.doesNotMatch(f.text(), /本轮用量查询失败/)
   f.document.focused = true; await f.emit('focus')
   assert.match(f.text(), /0.000元/); assert.ok(f.playing > 0, 'retained pending completion may recover on focus without losing its explicit Retry option')
   await f.unmount()
@@ -327,7 +362,7 @@ for (const cancellation of ['session', 'currency', 'blur', 'hidden', 'disabled',
   if (cancellation !== 'unmount') assert.equal(f.popup().length, 0)
   assert.equal(f.playing, 0); assert.equal(f.storage.has('man-031.seen.v2'), false, `${cancellation}: cancelled cost retry is not consumed`)
   if (cancellation !== 'unmount') {
-    assert.doesNotMatch(f.text(), /费用查询失败|正在查询费用/)
+    assert.doesNotMatch(f.text(), /本轮用量查询失败|正在查询本轮用量/)
     await act(async () => retry()); await flush()
     assert.equal(f.requests.filter(path => path.startsWith('/api/man-031/cost?')).length, 2, 'retired Retry handler cannot start a cancelled or expired cost request')
     await f.unmount()
@@ -340,7 +375,7 @@ for (const cancellation of ['session', 'currency', 'blur', 'hidden', 'disabled',
   await b.event(2); assert.ok(b.playing > 0)
   await a.click('man031-cost-retry')
   assert.equal(a.popup().length, 0); assert.equal(a.playing, 0, 'recovered tab cannot replay another tab’s committed completion')
-  assert.doesNotMatch(a.text(), /费用查询失败/)
+  assert.doesNotMatch(a.text(), /本轮用量查询失败/)
   await a.unmount(); await b.unmount()
 }
 {
@@ -537,7 +572,7 @@ for (const currency of ['CNY', 'USD']) {
 for (const amount of [null, 12, NaN, undefined, '0']) {
   let rolls = 0
   const f = await fixture({ manifest: withPhrases(withOpeners(manifest('verified'))), cost: { status: 'plan', amount }, deterministicRandom: () => { rolls++; return 0 } })
-  await f.event(2); assert.match(f.text(), /费用查询失败/); assert.doesNotMatch(f.text(), /套餐无额外扣费/)
+  await f.event(2); assert.match(f.text(), /本轮用量查询失败/); assert.doesNotMatch(f.text(), /套餐无额外扣费/)
   assert.equal(f.playing, 0); assert.equal(rolls, 0, 'invalid plan response stays unconfirmed without selecting or speaking a cost')
   assert.equal(f.storage.has('man-031.seen.v2'), false)
   await f.unmount()

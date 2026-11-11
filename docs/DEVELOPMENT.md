@@ -10,7 +10,7 @@ npm pack --dry-run
 
 0.5.0 移除了 0.4.0 的在线合成、凭据设置、每日额度、缓存服务和 `man031_voice_prepare` 工具。最终用户不提供 Key；运行包不含语音云服务调用代码。开发时的生成脚本、调用台账与原始文件只保存在不发布的 scripts/dev 中。
 
-65 份预制 WAV（0.6.0 新增 18 份、0.7.0 再新增 10 份）包含台词前缀、数字 0–19、整十数、point、hundred/thousand/million/billion，以及人民币/美元单位与结尾。manifest 显式声明资源，宿主只提供这些文件，不开放目录。数字内容经本地缓存识别模型校验；这不能代替主观音质验收。每份新片段的人工听审字段保留 false，不把用户认可的整句扩大成全部素材已听审。
+68 份预制 WAV（0.6.0 新增 18 份、0.7.0 再新增 10 份、0.8.0 新增 3 份 Token 片段）包含台词前缀、数字 0–19、整十数、point、hundred/thousand/million/billion，以及人民币/美元单位与结尾。manifest 显式声明资源，宿主只提供这些文件，不开放目录。数字内容经本地缓存识别模型校验；这不能代替主观音质验收。每份新片段的人工听审字段保留 false，不把用户认可的整句扩大成全部素材已听审。
 
 生成脚本：`generate-doubao-offline.mjs`。渲染脚本：`render-doubao-offline-pilot.mjs`。发布脚本：`publish-doubao-offline.mjs`。所有调用仅发生在开发阶段，使用现有音色；不新建音色、不调用付费云识别。单词各自完整合成，不在词中切割；只修剪外围低能量静音并保留 50ms 余量，静态增益统一活动帧 RMS 约 -24.8dB，true-peak 上限 -2.2dB，不变速或变调。
 
@@ -22,9 +22,11 @@ npm pack --dry-run
 
 ## 费用与生命周期
 
-投影 `man031Completion` 使用 stateVersion 2，配对 turn/start 与 completed turn/end。客户端只订阅宿主结果，不重新扫描历史。authenticated GET `/api/man-031/cost` 校验主会话本轮边界，再调用 costMeter 的 getTurnCost(sessionId,startSeq,endSeq,currency)。
+投影 `man031Completion` 使用 stateVersion 3，配对 turn/start 与 completed turn/end，增量收集 request/header、request/context、assistant/message 和 compaction/summary 的请求模型与原生用量。服务端每轮最多 2048 条、保留最近 8 轮，wire 仍只传边界；客户端不重新扫描历史。authenticated GET `/api/man-031/cost` 校验主会话本轮边界，再优先调用 costMeter 的 getTurnCost(sessionId,startSeq,endSeq,currency)。
 
-只采信 apiCost 与完整定价覆盖；cost 中的套餐等价值不视作额外扣费。未知、缺失或不一致返回 unknown，不使用固定金额或硬编码汇率，也不混入无法精确归属的子任务费用。
+只采信 apiCost 与完整定价覆盖；cost 中的套餐等价值不视作额外扣费。服务缺失、异常、超时或结果不完整时，用 lib/public-pricing.js 按每个请求分别估算；缺失用量或单价仍返回 unknown。公开数据只做固定 URL、有大小限制和超时的后台更新，每实例最多每天一次；始终先用随包快照，不阻塞提醒。带日期的汇率不是声称实时账单。未知不当作零，不混入无法归属的子任务。
+
+`?mode=tokens` 直接返回本轮原生总量，不查费用服务或价格。输入、输出、缓存读写分别相加，推理已在输出中，不重复加。reportMode 沿用原浏览器偏好键，默认 money、可选 tokens；Token 模式四套固定句式、整数试听、本地数字与 token/tokens 单位同步切换。
 
 客户端使用真实 React StrictMode 测试首轮、历史、绑定就绪、费用重试、跨窗口去重、取消与资源回收。关闭、切走、切换会话后不迟到播放。模拟时间轴和本地识别不能替代真实浏览器试听或实际轮次结束的验收；应分别记录验证结果。
 

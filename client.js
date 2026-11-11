@@ -7,7 +7,7 @@ window.__ModuleLoader__.load({ id: 'dsh-man-031', factory: require => {
   function preferences(value) {
     return { enabled: value?.enabled !== false, sound: value?.sound !== false,
       volume: Number.isFinite(value?.volume) ? Math.max(0, Math.min(1, value.volume)) : defaults.volume,
-      currency: value?.currency === 'USD' ? 'USD' : 'CNY', side: value?.side === 'left' ? 'left' : 'right' }
+      currency: value?.currency === 'USD' ? 'USD' : 'CNY', side: value?.side === 'left' ? 'left' : 'right', reportMode: value?.reportMode === 'tokens' ? 'tokens' : 'money' }
   }
   function read(key, fallback) { try { return JSON.parse(localStorage.getItem(key)) ?? fallback } catch { return fallback } }
   function save(key, value) { try { localStorage.setItem(key, JSON.stringify(value)); return true } catch { return false } }
@@ -73,7 +73,11 @@ window.__ModuleLoader__.load({ id: 'dsh-man-031', factory: require => {
     return result
   }
   // Manifest adapter: no speech synthesis and no guessed clip names.
-  function getAudioPlan(manifest, amount, currency, openerKey, phraseId) {
+  function getAudioPlan(manifest, amount, currency, openerKey, phraseId, mode = 'money') {
+    if (mode === 'tokens') {
+      if (!Number.isSafeInteger(amount) || amount < 0) throw new Error('unavailable')
+      manifest = { ...manifest, amounts: {}, phrases: manifest.tokenPhrases, units: { CNY: amount === 1 ? 'unit-token' : 'unit-tokens', USD: amount === 1 ? 'unit-token' : 'unit-tokens', USD_SINGULAR: 'unit-token' } }
+    }
     if (manifest?.schemaVersion !== 1 || !['candidate', 'verified'].includes(manifest.status)) throw new Error('unavailable')
     let phrase
     if (Array.isArray(manifest.phrases) && manifest.phrases.length) {
@@ -128,12 +132,13 @@ window.__ModuleLoader__.load({ id: 'dsh-man-031', factory: require => {
     return response.json()
   }
   function validateCost(cost, currency) {
-    if (!cost || cost.currency !== currency || cost.scope !== 'turn' || cost.source !== 'cost-meter' || !['estimated', 'plan', 'unknown'].includes(cost.status)) throw new Error('network')
+    if (!cost || cost.currency !== currency || cost.scope !== 'turn' || !['cost-meter', 'public-pricing', 'native-usage'].includes(cost.source) || !['estimated', 'plan', 'unknown'].includes(cost.status)) throw new Error('network')
     if (cost.status === 'estimated') formatAmount(cost.amount)
     if (cost.status === 'plan' && cost.amount !== 0) throw new Error('network')
+    if (cost.usage?.available === true && (!Number.isSafeInteger(cost.usage.total) || cost.usage.total < 0)) throw new Error('network')
     return cost
   }
-  function speakableCost(cost) { return cost.status === 'estimated' || (cost.status === 'plan' && cost.amount === 0) }
+  function speakableCost(cost, mode = 'money') { if (mode === 'tokens') return cost.usage?.available === true; return cost.status === 'estimated' || (cost.status === 'plan' && cost.amount === 0) }
   const CSS = `
 .man031{pointer-events:none;color:var(--dsw-alias-label-primary);font-family:inherit}
 .man031-peek:where([popover]){inset:auto;margin:0;padding:0;border:0;background:transparent;overflow:visible;color:var(--dsw-alias-label-primary)}
@@ -172,27 +177,31 @@ window.__ModuleLoader__.load({ id: 'dsh-man-031', factory: require => {
     function Settings() {
       const { prefs, degraded } = useSyncExternalStore(subscribe, snapshot)
       const [amountText, setAmountText] = useState('0.31')
-      const [phraseId, setPhraseId] = useState(''), [phrases, setPhrases] = useState([])
+      const [phraseId, setPhraseId] = useState(''), [pack, setPack] = useState(null)
+      const phrases = (prefs.reportMode === 'tokens' ? pack?.tokenPhrases : pack?.phrases) ?? []
+      useEffect(() => { setPhraseId(''); setAmountText(prefs.reportMode === 'tokens' ? '1000' : '0.31') }, [prefs.reportMode])
       useEffect(() => {
         const abort = new AbortController()
         void json('/api/man-031/voices/manifest.json', abort.signal).then(pack => {
-          if (!abort.signal.aborted) setPhrases(Array.isArray(pack.phrases) ? pack.phrases : [])
+          if (!abort.signal.aborted) setPack(pack)
         }).catch(() => {})
         return () => abort.abort()
       }, [])
-      const amount = parsePreviewAmount(amountText)
+      const parsed = parsePreviewAmount(amountText)
+      const amount = prefs.reportMode === 'tokens' && !Number.isSafeInteger(parsed) ? null : parsed
       const locale = useSyncExternalStore(React.useCallback(fn => ctx.locale.subscribe(fn), []), React.useCallback(() => ctx.locale.getSnapshot(), []))
       const zh = /^zh/i.test(locale.active)
       return h('section', { className: 'man031 man031-settings', 'aria-label': zh ? 'Man 提醒设置' : 'Man notification settings' }, h('style', null, CSS),
         h('label', null, zh ? '启用' : 'Enabled', h('input', { type: 'checkbox', checked: prefs.enabled, onChange: e => update({ enabled: e.target.checked }) })),
         h('label', null, zh ? '语音' : 'Voice', h('input', { type: 'checkbox', checked: prefs.sound, onChange: e => update({ sound: e.target.checked }) })),
         h('label', null, zh ? '音量' : 'Volume', h('input', { type: 'range', min: 0, max: 1, step: .05, value: prefs.volume, onChange: e => update({ volume: Number(e.target.value) }) })),
-        h('label', null, zh ? '币种' : 'Currency', h('select', { value: prefs.currency, onChange: e => update({ currency: e.target.value }) }, h('option', { value: 'CNY' }, zh ? '人民币（元）' : 'Chinese yuan'), h('option', { value: 'USD' }, zh ? '美元' : 'US dollar'))),
+        h('label', null, zh ? '播报内容' : 'Report', h('select', { className: 'man031-report-mode', value: prefs.reportMode, onChange: e => update({ reportMode: e.target.value }) }, h('option', { value: 'money' }, zh ? '金额' : 'Cost'), h('option', { value: 'tokens' }, zh ? 'Token 量' : 'Token count'))),
+        prefs.reportMode !== 'tokens' && h('label', null, zh ? '币种' : 'Currency', h('select', { className: 'man031-currency', value: prefs.currency, onChange: e => update({ currency: e.target.value }) }, h('option', { value: 'CNY' }, zh ? '人民币（元）' : 'Chinese yuan'), h('option', { value: 'USD' }, zh ? '美元' : 'US dollar'))),
         h('label', null, zh ? '探头位置' : 'Side', h('select', { value: prefs.side, onChange: e => update({ side: e.target.value }) }, h('option', { value: 'right' }, zh ? '右' : 'Right'), h('option', { value: 'left' }, zh ? '左' : 'Left'))),
-        h('label', null, zh ? '试听金额' : 'Preview amount', h('input', { className: 'man031-preview-amount', type: 'text', inputMode: 'decimal', value: amountText, 'aria-invalid': amount === null, onChange: e => setAmountText(e.target.value) })),
+        h('label', null, prefs.reportMode === 'tokens' ? (zh ? '试听 Token 数' : 'Preview tokens') : (zh ? '试听金额' : 'Preview amount'), h('input', { className: 'man031-preview-amount', type: 'text', inputMode: prefs.reportMode === 'tokens' ? 'numeric' : 'decimal', value: amountText, 'aria-invalid': amount === null, onChange: e => setAmountText(e.target.value) })),
         h('label', null, zh ? '试听句子' : 'Preview phrase', h('select', { className: 'man031-preview-phrase', value: phraseId, onChange: e => setPhraseId(e.target.value) }, h('option', { value: '' }, zh ? '随机' : 'Random'), ...phrases.map(p => h('option', { key: p.id, value: p.id }, (zh ? p.labelZh : p.labelEn) || p.id)))),
         h('button', { disabled: amount === null, onClick: () => { if (amount !== null) previewHandler?.(amount, phraseId || undefined) } }, zh ? '试听' : 'Preview'),
-        amount === null && h('div', { className: 'man031-note', role: 'status' }, zh ? '请输入有效金额，不会自动舍入或替换。' : 'Enter a valid amount. It will not be rounded or substituted.'),
+        amount === null && h('div', { className: 'man031-note', role: 'status' }, prefs.reportMode === 'tokens' ? (zh ? '请输入非负整数 Token 数。' : 'Enter a non-negative integer token count.') : (zh ? '请输入可准确表示的有效金额。' : 'Enter a valid, accurately representable amount.')),
         degraded && h('div', { className: 'man031-note', role: 'status' }, zh ? '此浏览器存储或锁不可用，跨窗口严格去重已降级。' : 'Storage or Locks unavailable: strict cross-window deduplication is degraded.'))
     }
     function Overlay({ usePanelInfo }) {
@@ -235,7 +244,7 @@ window.__ModuleLoader__.load({ id: 'dsh-man-031', factory: require => {
       async function play(value, manual = false) {
         stop(); setError(null)
         const myTicket = ticket.current, abort = new AbortController(); playAbort.current = abort
-        const valid = () => alive.current && ticket.current === myTicket && popupRef.current === value && prefsRef.current.sound && speakableCost(value.cost) && (value.preview || eligible(value.sessionId))
+        const valid = () => alive.current && ticket.current === myTicket && popupRef.current === value && prefsRef.current.sound && speakableCost(value.cost, value.mode) && (value.preview || eligible(value.sessionId))
         try {
           const AC = window.AudioContext || window.webkitAudioContext
           if (!AC) throw new Error('decode')
@@ -261,10 +270,11 @@ window.__ModuleLoader__.load({ id: 'dsh-man-031', factory: require => {
           if (value.openerKey === undefined && Array.isArray(manifest.openers) && manifest.openers.length) {
             value.openerKey = manifest.openers[Math.floor(Math.random() * manifest.openers.length)]
           }
-          if (value.phraseId === undefined && Array.isArray(manifest.phrases) && manifest.phrases.length) {
-            value.phraseId = manifest.phrases[Math.floor(Math.random() * manifest.phrases.length)]?.id
+          const phrases = value.mode === 'tokens' ? manifest.tokenPhrases : manifest.phrases
+          if (value.phraseId === undefined && Array.isArray(phrases) && phrases.length) {
+            value.phraseId = phrases[Math.floor(Math.random() * phrases.length)]?.id
           }
-          const paths = getAudioPlan(manifest, value.cost.amount, value.cost.currency, value.openerKey, value.phraseId)
+          const paths = getAudioPlan(manifest, value.mode === 'tokens' ? value.cost.usage.total : value.cost.amount, value.cost.currency, value.openerKey, value.phraseId, value.mode)
           if (!paths) throw new Error('missing-sample')
           const buffers = await Promise.all(paths.map(async path => {
             let response
@@ -318,11 +328,11 @@ window.__ModuleLoader__.load({ id: 'dsh-man-031', factory: require => {
           if (cancelled || !event || busy || !sessionId || !eligible(sessionId) || !fresh(event)) return
           busy = true
           setCostRetry(value => value?.event === event ? { ...value, loading: true } : value)
-          const generation = ++loadTicket, currency = prefsRef.current.currency
+          const generation = ++loadTicket, currency = prefsRef.current.currency, mode = prefsRef.current.reportMode
           abort = new AbortController()
-          const valid = () => !cancelled && generation === loadTicket && pending.current === event && prefsRef.current.currency === currency && eligible(sessionId) && fresh(event)
+          const valid = () => !cancelled && generation === loadTicket && pending.current === event && prefsRef.current.currency === currency && prefsRef.current.reportMode === mode && eligible(sessionId) && fresh(event)
           let cost
-          try { cost = validateCost(await json(`/api/man-031/cost?sessionId=${encodeURIComponent(sessionId)}&endSeq=${event.seq}&currency=${currency}`, abort.signal), currency) }
+          try { cost = validateCost(await json(`/api/man-031/cost?sessionId=${encodeURIComponent(sessionId)}&endSeq=${event.seq}&currency=${currency}${mode === 'tokens' ? '&mode=tokens' : ''}`, abort.signal), currency) }
           catch (e) {
             if (generation === loadTicket) busy = false
             if (e.name === 'AbortError' || !valid()) return
@@ -341,11 +351,11 @@ window.__ModuleLoader__.load({ id: 'dsh-man-031', factory: require => {
             // These checks are inside the cross-tab lock, after any queue wait.
             if (!valid()) return
             if (seen(id)) { pending.current = null; return }
-            const value = { id, sessionId, endSeq: event.seq, cost, preview: false }
+            const value = { id, sessionId, endSeq: event.seq, cost, mode, preview: false }
             if (!await present(value, valid) || !valid()) { if (popupRef.current === value) dismiss(); return }
             if (!markSeen(id)) setDegraded(true)
             pending.current = null
-            if (speakableCost(cost) && prefsRef.current.sound) void play(value)
+            if (speakableCost(cost, mode) && prefsRef.current.sound) void play(value)
             else later(4200)
           }
           try {
@@ -389,29 +399,29 @@ window.__ModuleLoader__.load({ id: 'dsh-man-031', factory: require => {
           cancelled = true; invalidate(); unsubscribeFace(); unsubscribeList(); pending.current = null; dismiss()
           window.removeEventListener('focus', focus); window.removeEventListener('blur', blur); document.removeEventListener('visibilitychange', visibility)
         }
-      }, [sessionId, prefs.currency])
+      }, [sessionId, prefs.currency, prefs.reportMode])
       useEffect(() => {
         if (!prefs.enabled) { cancelLoad.current(); pending.current = null; dismiss() }
         if (!prefs.sound) { stop(); setError(null); if (popupRef.current) later(4200) }
       }, [prefs.enabled, prefs.sound])
       function preview(amount = .31, phraseId) {
-        try { displayAmount(amount) } catch { return }
+        try { displayAmount(amount); if (prefsRef.current.reportMode === 'tokens' && !Number.isSafeInteger(amount)) return } catch { return }
         dismiss()
-        const value = { id: `preview-${Date.now()}`, preview: true, phraseId, cost: { status: 'estimated', amount, currency: prefsRef.current.currency, includesSubagents: false } }
+        const value = { id: `preview-${Date.now()}`, preview: true, phraseId, mode: prefsRef.current.reportMode, cost: { status: 'estimated', amount, currency: prefsRef.current.currency, usage: { total: amount, available: true }, includesSubagents: false } }
         popupRef.current = value; setPopup(value)
         if (prefsRef.current.sound) void play(value, true); else later(4200)
       }
-      const message = popup?.cost.status === 'estimated' ? (zh ? `MAN！本轮约花了${billingAmount(popup.cost.amount)}${popup.cost.currency === 'USD' ? '美元' : '元'}！` : `MAN! This round cost about ${billingAmount(popup.cost.amount)} ${popup.cost.currency === 'USD' ? (billingAmount(popup.cost.amount) === '1.000' ? 'dollar' : 'dollars') : 'yuan'}!`)
+      const message = popup?.mode === 'tokens' ? (popup.cost.usage?.available ? (zh ? `MAN！本轮用了 ${popup.cost.usage.total.toLocaleString('en-US')} 个 Token！` : `MAN! This round used ${popup.cost.usage.total.toLocaleString('en-US')} ${popup.cost.usage.total === 1 ? 'token' : 'tokens'}!`) : (zh ? 'Token 用量暂不可用' : 'Token usage unavailable')) : popup?.cost.status === 'estimated' ? (zh ? `MAN！本轮约花了${billingAmount(popup.cost.amount)}${popup.cost.currency === 'USD' ? '美元' : '元'}！` : `MAN! This round cost about ${billingAmount(popup.cost.amount)} ${popup.cost.currency === 'USD' ? (billingAmount(popup.cost.amount) === '1.000' ? 'dollar' : 'dollars') : 'yuan'}!`)
         : popup?.cost.status === 'plan' ? (zh ? `套餐无额外扣费 · 0.000${popup.cost.currency === 'USD' ? '美元' : '元'}` : `No additional plan charge · 0.000 ${popup.cost.currency === 'USD' ? 'dollars' : 'yuan'}`) : (zh ? '费用暂不可用' : 'Cost unavailable')
       const errorText = { permission: zh ? '允许播放 · 重试' : 'Allow audio · Retry', network: zh ? '音频网络失败 · 重试' : 'Audio network error · Retry', decode: zh ? '音频解码失败 · 重试' : 'Audio decode error · Retry', candidate: zh ? '候选声线 · 点击试听' : 'Candidate voice · Preview', unavailable: zh ? '声线尚未就绪 · 重试' : 'Voice unavailable · Retry', 'missing-sample': zh ? '暂无这个金额的整段语音 · 重试' : 'No full voice for this amount · Retry' }
       return h('div', { className: 'man031', 'data-plugin': 'man-031' }, h('style', null, CSS),
         popup && h('div', { ref: popupElement, popover: popup.preview ? 'manual' : undefined, className: 'man031-peek', 'data-side': prefs.side, role: 'status', 'aria-live': 'polite' },
           h('img', { src: '/api/man-031/kobe.png', alt: '', draggable: false }),
           h('div', { className: 'man031-line' }, message,
-            h('small', null, popup.preview ? (zh ? '试听示例 · 非本轮费用' : 'Preview · not this turn’s cost') : popup.cost.status === 'estimated' ? (zh ? '本轮主会话 · 花费估算' : 'Main session · estimated cost') : null)),
+            h('small', null, popup.preview ? (popup.mode === 'tokens' ? (zh ? '试听示例 · 非本轮用量' : 'Preview · not this turn’s usage') : (zh ? '试听示例 · 非本轮费用' : 'Preview · not this turn’s cost')) : popup.mode === 'tokens' ? (zh ? '本轮主会话 · 输入＋输出＋缓存，推理不重复计数' : 'Main session · input + output + cache; reasoning included') : popup.cost.source === 'public-pricing' && popup.cost.status === 'estimated' ? (zh ? '按公开价格估算 · 非实际扣款' : 'Public-price estimate · not actual billing') : popup.cost.status === 'estimated' ? (zh ? '本轮主会话 · 花费估算' : 'Main session · estimated cost') : null)),
           h('button', { className: 'man031-close', onClick: dismiss, 'aria-label': zh ? '关闭' : 'Dismiss' }, '×'),
           error && h('button', { className: 'man031-retry', onClick: () => void play(popup, true) }, errorText[error])),
-        costRetry && h('button', { className: 'man031-cost-retry', onClick: costRetry.retry, disabled: costRetry.loading, 'aria-live': 'polite' }, costRetry.loading ? (zh ? '正在查询费用…' : 'Loading cost…') : (zh ? '费用查询失败 · 重试' : 'Cost request failed · Retry')))
+        costRetry && h('button', { className: 'man031-cost-retry', onClick: costRetry.retry, disabled: costRetry.loading, 'aria-live': 'polite' }, costRetry.loading ? (zh ? '正在查询本轮用量…' : 'Loading turn usage…') : (zh ? '本轮用量查询失败 · 重试' : 'Turn usage request failed · Retry')))
     }
     class Boundary extends React.Component {
       constructor(props) { super(props); this.state = { error: null } }

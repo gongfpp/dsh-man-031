@@ -5,7 +5,7 @@ import vm from 'node:vm'
 const root = new URL('../assets/voices/', import.meta.url)
 const manifest = JSON.parse(readFileSync(new URL('manifest.json', root), 'utf8'))
 assert.equal(manifest.id,'kobe-doubao-offline-v1');assert.equal(manifest.provider,'doubao');assert.equal(manifest.runtime,undefined)
-assert.equal(manifest.exactOnly,false);assert.equal(Object.keys(manifest.clips).length,65);assert.equal(manifest.phrases.length,20)
+assert.equal(manifest.exactOnly,false);assert.equal(Object.keys(manifest.clips).length,68);assert.equal(manifest.phrases.length,20)
 assert.equal(new Set(manifest.phrases.map(p=>p.id)).size,20)
 const { phrases: expectedPhrases } = await import('./generate-doubao-phrases-v3.mjs')
 assert.deepEqual(manifest.phrases, expectedPhrases)
@@ -25,10 +25,17 @@ for(const p of manifest.phrases)for(const currency of ['CNY','USD'])for(const am
   assert.ok(files[0].endsWith(manifest.clips[p.prefix].file));if(p.suffix)assert.ok(files.at(-1).endsWith(manifest.clips[p.suffix].file))
   assert.ok(!files.some(path=>path.includes('/amounts/')),'a different whole sentence must never replace a selected template')
 }
+assert.equal(manifest.tokenPhrases.length,4)
+for(const phrase of manifest.tokenPhrases)for(const amount of [0,1,1234,999999999999]){
+ const files=Array.from(api.getAudioPlan(manifest,amount,'CNY',undefined,phrase.id,'tokens'))
+ assert.ok(files[0].endsWith(manifest.clips[phrase.prefix].file))
+ assert.ok(files.some(p=>p.endsWith(manifest.clips[amount===1?'unit-token':'unit-tokens'].file)))
+ assert.ok(!files.some(p=>p.includes('/amounts/')||/unit-(yuan|dollar)/.test(p)))
+}
 assert.deepEqual(Array.from(api.numberTokens(.000749)),['0','dot','0','0','1'])
 assert.deepEqual(Array.from(api.numberTokens(.3105)),['0','dot','3','1','1'])
 assert.deepEqual(Array.from(api.numberTokens(9.9995)),['10'])
 for(const path of ['../index.js','../client.js']){
  const text=readFileSync(new URL(path,import.meta.url),'utf8');for(const forbidden of ['openspeech.bytedance.com','voice/resolve','voice/configure','man031_voice_prepare','豆包连接'])assert.equal(text.includes(forbidden),false)
 }
-console.log('offline audio: passed (65 hashed clips, 20 templates x 2 currencies; decimal three-place half-up; approved whole WAV preserved; no runtime provider/key/tool)')
+console.log('offline audio: passed (68 hashed clips, 20 templates x 2 currencies; decimal three-place half-up; approved whole WAV preserved; no runtime provider/key/tool)')

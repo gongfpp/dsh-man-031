@@ -23,7 +23,7 @@ assert.equal(reduce(next, start(2, 6)), next)
 let recent = next
 for (let n = 3; n < 15; n++) recent = reduce(reduce(recent, start(n, n * 10)), end('completed', n * 10 + 2, n))
 assert.equal(recent.recent.length, 8)
-assert.equal(recent.recent.at(-1), recent.latest)
+assert.deepEqual(recent.recent.at(-1), { ...recent.latest, samples: [], incomplete: false })
 
 const paid = (amount = 0.0031) => ({ found: true, apiCost: amount, cost: amount, calls: [{ apiCost: amount, plan: false, priced: true, rows: [{ priced: true, plan: false }] }] })
 assert.equal(normalizeCost(paid(), 'CNY').amount, 0.0031, 'do not floor sub-cent fees')
@@ -57,7 +57,7 @@ await apply({
   connection: { fetch: { register: route => { assert.equal(routes.has(route.path), false); routes.set(route.path, route); return async () => { disposedRoutes++ } } } },
   effect: fn => effects.push(fn()),
 })
-assert.equal(definition.key, 'man031Completion'); assert.equal(definition.stateVersion, 2)
+assert.equal(definition.key, 'man031Completion'); assert.equal(definition.stateVersion, 3)
 definition.stateSchema.parse(next); definition.wire.viewSchema.parse(next.latest)
 assert.equal(definition.wire.view(next), next.latest)
 const image = await routes.get('/api/man-031/kobe.png').fetch()
@@ -83,13 +83,13 @@ assert.deepEqual(calls[1], ['test-session', 5, 7, 'USD'], 'currency forwarded, n
 for (const query of ['sessionId=x&endSeq=7&currency=CNY', 'sessionId=test-session&endSeq=6', 'sessionId=test-session&endSeq=7&currency=EUR', 'sessionId=test-session&endSeq=-1', 'sessionId=test-session&endSeq=1e3', 'endSeq=7']) assert.ok((await cost(query)).status >= 400)
 queryState = { ...next, recent: [{ ...next.latest, seq: 8 }] }
 meterAvailable = false
-assert.equal((await (await cost('sessionId=test-session&endSeq=8')).json()).reason, 'cost-meter-unavailable')
+assert.equal((await (await cost('sessionId=test-session&endSeq=8')).json()).reason, 'missing-usage')
 meterAvailable = true; raw = { found: false }
 assert.equal((await (await cost('sessionId=test-session&endSeq=8')).json()).amount, null)
 raw = plan
 assert.equal((await (await cost('sessionId=test-session&endSeq=8')).json()).status, 'plan', 'unknown must be retryable, not cached')
 throwMeter = true
-assert.equal((await (await cost('sessionId=test-session&endSeq=8&currency=USD')).json()).reason, 'cost-query-failed')
+assert.equal((await (await cost('sessionId=test-session&endSeq=8&currency=USD')).json()).reason, 'missing-usage')
 for (const path of ['/api/man-031/voice/resolve','/api/man-031/voice/configure','/api/man-031/voice/status','/api/man-031/voice/audio']) assert.equal(routes.has(path), false, 'offline plugin exposes no provider or key endpoint')
 assert.equal(registeredTools.length, 0); assert.equal(voiceService, undefined); assert.equal(records.size, 0)
 await Promise.all(effects.map(fn => fn()))

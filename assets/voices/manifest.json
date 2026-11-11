@@ -687,6 +687,30 @@
       "duration": 1.622,
       "asrVerified": false,
       "humanListeningVerified": false
+    },
+    "token-used": {
+      "file": "clips/token-used.wav",
+      "text": "MAN! This round used.",
+      "sha256": "5e73549d705f56978059114cf05b83d8f53406797678b2f1a4d8a79f8226bb9f",
+      "duration": 2.84,
+      "asrVerified": false,
+      "humanListeningVerified": false
+    },
+    "unit-token": {
+      "file": "clips/unit-token.wav",
+      "text": "Token.",
+      "sha256": "2ee8dcad651f1e1dd392d9f82b29185a7813ef199d02ccf2bcefe9fda6fdd320",
+      "duration": 0.71,
+      "asrVerified": false,
+      "humanListeningVerified": false
+    },
+    "unit-tokens": {
+      "file": "clips/unit-tokens.wav",
+      "text": "Tokens.",
+      "sha256": "2eb23b9dfef2c5b8c3544455da0dc8bd3c560e1c62106e36d576db3b3366ef61",
+      "duration": 1.02,
+      "asrVerified": false,
+      "humanListeningVerified": false
     }
   },
   "amounts": {
@@ -706,10 +730,44 @@
     "newCompositesHumanReviewed": false,
     "runtimeGeneration": false
   },
-  "notes": "20 offline phrase templates, pre-generated fixed voice; local number + bare currency + optional ending. Three decimal half-up presentation; no runtime synthesis/key/provider.",
+  "notes": "20 money and 4 token templates; fixed local voice and number bank. Three decimal half-up money; integer tokens. No runtime synthesis/key/provider.",
   "units": {
     "CNY": "unit-yuan",
     "USD": "unit-dollars",
     "USD_SINGULAR": "unit-dollar"
-  }
+  },
+  "tokenPhrases": [
+    {
+      "id": "token-jobs",
+      "labelZh": "活儿还没结束",
+      "labelEn": "Job's not finished",
+      "prefix": "token-used",
+      "suffix": "line-jobs",
+      "text": "MAN! This round used {amount} {unit}. Job's not finished."
+    },
+    {
+      "id": "token-next",
+      "labelZh": "下一回合",
+      "labelEn": "Next play",
+      "prefix": "token-used",
+      "suffix": "line-next-play",
+      "text": "MAN! This round used {amount} {unit}. No excuses. Next play."
+    },
+    {
+      "id": "token-mission",
+      "labelZh": "目标不变",
+      "labelEn": "Same mission",
+      "prefix": "token-used",
+      "suffix": "line-mission",
+      "text": "MAN! This round used {amount} {unit}. Same mission."
+    },
+    {
+      "id": "token-rep",
+      "labelZh": "再练一组",
+      "labelEn": "One more rep",
+      "prefix": "token-used",
+      "suffix": "line-rep",
+      "text": "MAN! This round used {amount} {unit}. One more rep."
+    }
+  ]
 }

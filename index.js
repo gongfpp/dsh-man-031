@@ -1,25 +1,40 @@
 import { readFile } from 'node:fs/promises'
 import { z } from 'zod'
+import { createPriceStore, usageTotals } from './lib/public-pricing.js'
 export const name = 'man-031'
 export const inject = ['connection', 'sessionProjections', 'sessions']
 export const KEY = 'man031Completion'
 const boundary = z.object({ turn: z.number().int().positive(), time: z.number(), seq: z.number().int().nonnegative() })
 const completion = boundary.extend({ startSeq: z.number().int().nonnegative(), startTime: z.number() })
-const stateSchema = z.object({ excluded: z.boolean(), floor: z.number(), lastSeq: z.number(), active: boundary.nullable(), latest: completion.nullable(), recent: z.array(completion).max(8) })
-export const initialState = (header, inheritedEventCount) => ({ excluded: header.origin === 'subagent', floor: inheritedEventCount, lastSeq: -1, active: null, latest: null, recent: [] })
-
-// A pure fold of durable boundaries. Inherited, interrupted and unmatched turns never notify.
+const sampleSchema = z.object({ key: z.string(), provider: z.string(), model: z.string(), time: z.number(), input: z.number(), output: z.number(), cacheRead: z.number(), cacheWrite: z.number(), reasoning: z.number() })
+const recordSchema = completion.extend({ samples: z.array(sampleSchema).optional(), incomplete: z.boolean().optional() })
+const stateSchema = z.object({ excluded: z.boolean(), floor: z.number(), lastSeq: z.number(), active: boundary.nullable(), latest: completion.nullable(), recent: z.array(recordSchema).max(8), provider: z.string(), model: z.string(), samples: z.array(sampleSchema).max(2048), incomplete: z.boolean() })
+export const initialState = (header, inheritedEventCount) => ({ excluded: header.origin === 'subagent', floor: inheritedEventCount, lastSeq: -1, active: null, latest: null, recent: [], provider: '', model: '', samples: [], incomplete: false })
 export function reduce(state, event) {
   if (state.excluded || !Number.isSafeInteger(event.seq) || event.seq < state.floor || event.seq <= state.lastSeq || !Number.isFinite(event.time)) return state
+  const data = event.data ?? {}
+  if (event.type === 'request/context' || event.type === 'request/header') {
+    const config = event.type === 'request/header' ? data.header?.config : data
+    return { ...state, lastSeq: event.seq, provider: config?.provider ?? state.provider, model: config?.model ?? state.model }
+  }
+  if (event.type === 'assistant/message' || event.type === 'compaction/summary') {
+    if (!state.active || (data.turn !== undefined && data.turn !== state.active.turn)) return state
+    const u = data.usage
+    if (!u || !['inputTokens', 'outputTokens'].every(k => Number.isSafeInteger(u[k]) && u[k] >= 0) || ['cacheReadTokens','cacheWriteTokens','reasoningTokens'].some(k => u[k] !== undefined && (!Number.isSafeInteger(u[k]) || u[k] < 0))) return { ...state, lastSeq: event.seq, incomplete: true }
+    const source = data.message?.source ?? data
+    const sample = { key: event.type === 'assistant/message' && Number.isSafeInteger(data.step) ? `step:${data.step}` : `${event.type}:${event.seq}`, provider: source.provider ?? state.provider, model: source.model ?? state.model, time: event.time, input: u.inputTokens, output: u.outputTokens, cacheRead: u.cacheReadTokens ?? 0, cacheWrite: u.cacheWriteTokens ?? 0, reasoning: u.reasoningTokens ?? 0 }
+    const samples = state.samples.filter(row => row.key !== sample.key)
+    if (samples.length >= 2048) return { ...state, lastSeq: event.seq, incomplete: true }
+    return { ...state, lastSeq: event.seq, samples: [...samples, sample] }
+  }
   if (event.type !== 'turn/start' && event.type !== 'turn/end') return state
-  const turn = event.data?.turn
+  const turn = data.turn
   if (!Number.isSafeInteger(turn) || turn < 1) return state
-  if (event.type === 'turn/start') return { ...state, lastSeq: event.seq, active: { turn, time: event.time, seq: event.seq } }
-  const active = state.active
-  const next = { ...state, lastSeq: event.seq, active: null }
-  if (!active || active.turn !== turn || event.seq <= active.seq || event.data?.reason?.kind !== 'completed') return next
+  if (event.type === 'turn/start') return { ...state, lastSeq: event.seq, active: { turn, time: event.time, seq: event.seq }, samples: [], incomplete: false }
+  const active = state.active, next = { ...state, lastSeq: event.seq, active: null }
+  if (!active || active.turn !== turn || event.seq <= active.seq || data.reason?.kind !== 'completed') return next
   const latest = { turn, time: event.time, seq: event.seq, startSeq: active.seq, startTime: active.time }
-  return { ...next, latest, recent: [...state.recent, latest].slice(-8) }
+  return { ...next, latest, recent: [...state.recent, { ...latest, samples: state.samples, incomplete: state.incomplete }].slice(-8) }
 }
 
 const resultBase = currency => ({ currency, scope: 'turn', source: 'cost-meter', includesSubagents: false })
@@ -46,7 +61,7 @@ const audioPath = value => typeof value === 'string' && /^(clips|amounts)\/[A-Za
 
 export async function apply(ctx) {
   const projection = await ctx.sessionProjections.register({
-    key: KEY, stateVersion: 2, stateSchema,
+    key: KEY, stateVersion: 3, stateSchema,
     init: initialState, apply: reduce,
     wire: { viewSchema: completion.nullable(), view: state => state.latest, summary: false },
   })
@@ -71,6 +86,8 @@ export async function apply(ctx) {
   }
   register('/api/man-031/voices/manifest.json', async () => json(manifest))
 
+  const prices = createPriceStore(); await prices.init()
+  ctx.effect(() => () => prices.dispose())
   const cache = new Map(), pending = new Map()
   let disposed = false
   ctx.effect(() => () => { disposed = true; cache.clear(); pending.clear() })
@@ -84,12 +101,15 @@ export async function apply(ctx) {
     const state = projection.stateOf(session)
     const turn = state?.recent.find(item => item.seq === endSeq)
     if (!turn || state.excluded) return json({ error: 'completion-not-found' }, 404)
+    const usage = usageTotals(turn.samples, turn.incomplete ?? true)
+    if (url.searchParams.get('mode') === 'tokens') return json({ ...unknown(currency, 'token-mode'), source: 'native-usage', usage })
+    const fallback = () => prices.quote(turn.samples ?? [], turn.incomplete ?? true, currency)
     const key = JSON.stringify([id, endSeq, currency]), cached = cache.get(key)
     if (cached && Date.now() - cached.time < 10_000) return json(cached.value)
     const meter = ctx.get('costMeter')
-    if (typeof meter?.getTurnCost !== 'function') return json(unknown(currency, 'cost-meter-unavailable'))
+    if (typeof meter?.getTurnCost !== 'function') return json(fallback())
     if (!pending.has(key)) {
-      if (pending.size >= 16) return json(unknown(currency, 'busy'))
+      if (pending.size >= 16) return json(fallback())
       const job = (async () => {
         let timer
         try {
@@ -98,13 +118,14 @@ export async function apply(ctx) {
             Promise.resolve().then(() => meter.getTurnCost(id, turn.startSeq, turn.seq, currency)),
             new Promise((_, reject) => { timer = setTimeout(() => reject(new Error('cost-timeout')), 8_000); timer.unref?.() }),
           ])
-          const value = normalizeCost(raw, currency)
+          const normalized = normalizeCost(raw, currency)
+          const value = normalized.status === 'unknown' ? fallback() : { ...normalized, usage }
           if (!disposed && value.status !== 'unknown') {
             cache.set(key, { time: Date.now(), value })
             if (cache.size > 128) cache.delete(cache.keys().next().value)
           }
           return value
-        } catch { return unknown(currency, 'cost-query-failed') }
+        } catch { return fallback() }
         finally { clearTimeout(timer) }
       })()
       pending.set(key, job)

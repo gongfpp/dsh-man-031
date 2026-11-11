@@ -63,6 +63,9 @@ line-receipt: Keep the receipt. Lose the doubt.
 line-shortcuts: No shortcuts from here.
 line-mission: Same mission.
 line-clock: Clock's still running.
+token-used: MAN! This round used.
+unit-token: Token.
+unit-tokens: Tokens.
 
 round-next: MAN! That's about {amount} {unit}. One round down. What's next?
 back-work: About {amount} {unit}. All right. Back to work.
@@ -84,3 +87,7 @@ receipt: About {amount} {unit}. Keep the receipt. Lose the doubt.
 shortcuts: MAN! About {amount} {unit}. No shortcuts from here.
 mission: Another round, about {amount} {unit}. Same mission.
 clock: About {amount} {unit}. Clock's still running.
+token-jobs: MAN! This round used {amount} {unit}. Job's not finished.
+token-next: MAN! This round used {amount} {unit}. No excuses. Next play.
+token-mission: MAN! This round used {amount} {unit}. Same mission.
+token-rep: MAN! This round used {amount} {unit}. One more rep.

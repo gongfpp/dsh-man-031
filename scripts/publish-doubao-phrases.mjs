@@ -3,7 +3,9 @@ import { join } from 'node:path'
 import { createHash } from 'node:crypto'
 import * as v2 from './generate-doubao-phrases.mjs'
 import * as v3 from './generate-doubao-phrases-v3.mjs'
-const { directory, plan, phrases } = process.argv.includes('--v3') ? v3 : v2
+import * as tokens from './generate-doubao-tokens.mjs'
+const tokenMode = process.argv.includes('--tokens')
+const { directory, plan, phrases } = tokenMode ? tokens : process.argv.includes('--v3') ? v3 : v2
 import { measureVoice, media } from './voice-loudness.mjs'
 const root=new URL('../',import.meta.url),bankRoot=new URL('assets/voices/',root),manifestPath=new URL('manifest.json',bankRoot),bank=JSON.parse(readFileSync(manifestPath,'utf8'))
 const hash=b=>createHash('sha256').update(b).digest('hex'), report=[]
@@ -22,10 +24,12 @@ for(const item of plan){
   copyFileSync(file,new URL(row.file,bankRoot));bank.clips[item.id]=row
   report.push({id:item.id,...row,sourceSha256:ledger.sha256,rangeSeconds:[first/24000,end/24000],gainDb,after:measureVoice(file)})
 }
-bank.phrases=phrases;bank.units={CNY:'unit-yuan',USD:'unit-dollars',USD_SINGULAR:'unit-dollar'}
-bank.notes=`${phrases.length} offline phrase templates, pre-generated fixed voice; local number + bare currency + optional ending. Three decimal half-up presentation; no runtime synthesis/key/provider.`
+if (tokenMode) bank.tokenPhrases=tokens.tokenPhrases
+else bank.phrases=phrases
+bank.units={CNY:'unit-yuan',USD:'unit-dollars',USD_SINGULAR:'unit-dollar'}
+bank.notes=`${bank.phrases.length} money and ${bank.tokenPhrases?.length ?? 0} token templates; fixed local voice and number bank. Three decimal half-up money; integer tokens. No runtime synthesis/key/provider.`
 bank.verification.newCompositesHumanReviewed=false
 writeFileSync(manifestPath,JSON.stringify(bank,null,2)+'\n')
 writeFileSync(join(directory,'render.json'),JSON.stringify({developmentCalls:plan.length,cloudAsrCalls:0,processing:'Outer silence only with 50ms padding; single constant gain; no pitch/rate change; no fabricated per-clip human review.',clips:report},null,2)+'\n')
-writeFileSync(new URL('readable-text.txt',bankRoot),Object.entries(bank.clips).map(([key,row])=>`${key}: ${row.text}`).join('\n')+'\n\n'+phrases.map(p=>`${p.id}: ${p.text}`).join('\n')+'\n')
-console.log(JSON.stringify({phrases:phrases.length,newClips:report.length,totalClips:Object.keys(bank.clips).length,durations:report.map(r=>({id:r.id,seconds:r.duration})),newApiCalls:0}))
+writeFileSync(new URL('readable-text.txt',bankRoot),Object.entries(bank.clips).map(([key,row])=>`${key}: ${row.text}`).join('\n')+'\n\n'+[...bank.phrases,...(bank.tokenPhrases??[])].map(p=>`${p.id}: ${p.text}`).join('\n')+'\n')
+console.log(JSON.stringify({phrases:bank.phrases.length,tokenPhrases:bank.tokenPhrases?.length??0,newClips:report.length,totalClips:Object.keys(bank.clips).length,durations:report.map(r=>({id:r.id,seconds:r.duration})),newApiCalls:0}))

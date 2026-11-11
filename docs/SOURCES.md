@@ -4,6 +4,12 @@
 
 已确认整句通过[官方体验中心](https://console.volcengine.com/speech/new/experience/tts?projectName=default)生成，新词库由开发者使用同一已分配音色经官方公共 API 预先生成；最终用户播放不调用该 API。适用[声音复刻协议](https://www.volcengine.com/docs/6561/1136414)。免费网页体验本身不代表可公开分发。2026-11-11，项目维护者确认现有照片和豆包音频已有覆盖本次公开分发的授权或其他适用许可，并要求发布完整插件；此确认不等于向其他人授予商用、转许可或任意再分发权。
 
+## 公开价格与 Token 语音
+
+0.8.0 的三份 Token 固定片段（开头、token、tokens）使用同一豆包音色预先生成，复用已有数字及结尾组成四套句式，不引入用户端合成。仅作整段静态增益和外围静音修剪；未冒称新片段或全部组合已通过人工听审。
+
+价格快照来自 MIT 许可的 [dsh-cost-meter](https://github.com/Han-1413141/dsh-cost-meter) 公共价格表及其 1.9.58 DeepSeek 基础配置，许可原文保存在 [PRICING-LICENSE.txt](PRICING-LICENSE.txt)。该许可仅适用于相应价格数据及其派生实现，不改变本插件其他代码或媒体的许可。汇率来源为 [ExchangeRate-API 公开接口](https://open.er-api.com/v6/latest/USD)，快照保留来源和日期。公开单价估算不等于账户账单。
+
 ## 图片与参考历史
 
 - 肖像为网络流传的科比冰红茶二创图。[来源文章](https://www.sohu.com/a/796522661_121687421)，[原始图片](https://q0.itc.cn/q_70/images03/20240727/6f2674d4501f4e4daa75464b4fceb2ed.png)。本项目仅去除背景、清理轮廓；不因此取得摄影、肖像或可见品牌的使用权。
