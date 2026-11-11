@@ -1,0 +1,34 @@
+MIT License
+
+Copyright (c) 2026 gongfpp
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+Scope of this grant
+
+The permission above covers the plugin source code, scripts and documentation in
+this repository. It does not extend to the bundled third-party assets:
+`assets/kobe.png`, `icon.png`, `docs/preview.png` and `assets/voices/`. Those
+files are included so the packaged plugin works offline, and are limited to
+personal, non-commercial use together with this plugin. Provenance and limits are
+documented in THIRD-PARTY-NOTICES.md.
+
+The pricing snapshot and the public-price estimate implementation derived from
+dsh-cost-meter remain under that project's MIT license; the original text is kept
+in docs/PRICING-LICENSE.txt.
